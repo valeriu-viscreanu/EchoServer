@@ -84,7 +84,7 @@ namespace Application
                 if (input == "exit")
                 {
                     echoApp.Stop();
-                    Console.WriteLine("Stopping");
+                    Console.WriteLine("Stopping ...");
                     break;
                 }
 
