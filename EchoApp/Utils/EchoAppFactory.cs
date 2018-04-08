@@ -1,34 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Application;
+using Ninject;
 
-namespace Server.Utils
+namespace Application
 {
-    /*  public class EchoAppFactory
-      {
-          private readonly IUserLoginService _userLoginService;
-          private readonly IUserLoginService _adminLoginService;
-      }
+    public class EchoAppFactory : IEchoAppFactory
+    {
+        private readonly IEchoApp clientApp;
+        private readonly IEchoApp serverApp;
 
-       * public class UserLoginServiceFactory : ILoginServiceFactory
-  {
-      private readonly IUserLoginService _userLoginService;
-      private readonly IUserLoginService _adminLoginService;
-      public UserLoginServiceFactory([Named("UserLogin")]IUserLoginService userLoginService, [Named("AdminLogin")]IUserLoginService adminLoginService)
-      {
-          _userLoginService = userLoginService;
-          _adminLoginService = adminLoginService;
-      }
+        public EchoAppFactory([Named("clientApp")]IEchoApp clientApp, [Named("serverApp")]IEchoApp serverApp)
+        {
+            this.clientApp = clientApp;
+            this.serverApp = serverApp;
+        }
 
-      public IUserLoginService GetLoginService(string username)
-      {
-          if (username.Contains("@somecompanyname.com")) 
-          {
-              return _adminLoginService;
-          }
-          return _userLoginService;
-      }
-       */
+        public IEchoApp GetEchoApp(RunMode mode)
+        {
+            IEchoApp app;
+            switch (mode)
+            {
+                case RunMode.Server:
+                    app = this.serverApp;
+                    break;
+                case RunMode.Client:
+                    app = this.clientApp;
+                    break;
+                default:
+                    throw new ArgumentException("No mode set");
+            }
+
+            return app;
+        }
+    }
 }
