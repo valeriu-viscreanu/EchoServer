@@ -12,8 +12,8 @@ namespace EchoApp.Utils
             if (container == null) throw new ArgumentNullException(nameof(container));
 
             container.Bind<IProgram>().To<Program>().InSingletonScope();
-            container.Bind<IEchoApp>().To<TCPServer>().Named("serverApp");;
-            container.Bind<IEchoApp>().To<TCPClient>().Named("clientApp");
+            container.Bind<IEchoApp>().To<Server>().Named("serverApp");;
+            container.Bind<IEchoApp>().To<Client>().Named("clientApp");
             container.Bind<IEchoAppFactory>().To<EchoAppFactory>();
         }
 
