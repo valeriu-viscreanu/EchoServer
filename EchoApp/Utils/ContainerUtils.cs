@@ -1,6 +1,7 @@
 ﻿using System;
 using Application;
 using Ninject;
+using TCPApplication;
 
 namespace EchoApp.Utils
 {

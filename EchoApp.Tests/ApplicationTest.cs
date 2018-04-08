@@ -1,7 +1,7 @@
-﻿using System;
-using Application;
-using Application.Fakes;
+﻿using Application;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TCPApplication;
+using TCPApplication.Fakes;
 
 namespace EchoApp.Tests
 {
@@ -32,12 +32,7 @@ namespace EchoApp.Tests
             Assert.AreEqual(factoryServer, serverApp);
             Assert.AreNotEqual(factoryServer, clientApp);
         }
-        /**
-         *  Start called once
-         */
-
-         // send message
-
-        ///
+       
+        /// TODO Decouple program and test
     }
 }

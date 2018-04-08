@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Application;
 
-namespace Application
+namespace TCPApplication
 {
     public class RunSettings
     {

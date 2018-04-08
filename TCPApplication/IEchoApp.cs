@@ -1,4 +1,4 @@
-﻿namespace Application
+﻿namespace TCPApplication
 {
     public interface IEchoApp
     {

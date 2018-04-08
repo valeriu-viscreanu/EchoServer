@@ -1,9 +1,10 @@
 ﻿using Application;
+using TCPApplication;
 
 namespace Application
 {
     public interface IEchoAppFactory
     {
-        IEchoApp GetEchoApp(RunMode mode);
+        IEchoApp GetEchoApp(RunMode runMode);
     }
 }

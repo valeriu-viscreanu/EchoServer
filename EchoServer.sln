@@ -9,6 +9,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentatio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoApp.Tests", "EchoApp.Tests\EchoApp.Tests.csproj", "{01788511-9DB0-4851-B80A-E10A14765D7F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logic", "Logic", "{04145771-00A7-4C5B-9690-E33B39909867}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPApplication", "TCPApplication\TCPApplication.csproj", "{AEF1F996-1E33-4BA6-9012-6815118C3AE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPApplication.Tests", "TCPApplication.Tests\TCPApplication.Tests.csproj", "{EE3B433F-1DB5-453E-980C-576D479CE759}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +29,14 @@ Global
 		{01788511-9DB0-4851-B80A-E10A14765D7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01788511-9DB0-4851-B80A-E10A14765D7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01788511-9DB0-4851-B80A-E10A14765D7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEF1F996-1E33-4BA6-9012-6815118C3AE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEF1F996-1E33-4BA6-9012-6815118C3AE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEF1F996-1E33-4BA6-9012-6815118C3AE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEF1F996-1E33-4BA6-9012-6815118C3AE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE3B433F-1DB5-453E-980C-576D479CE759}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE3B433F-1DB5-453E-980C-576D479CE759}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE3B433F-1DB5-453E-980C-576D479CE759}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE3B433F-1DB5-453E-980C-576D479CE759}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -30,5 +44,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{487CC5AC-15B8-4A6F-A514-C71C0E42FB05} = {7AABB749-54F4-4B81-9D34-FC826C47B59D}
 		{01788511-9DB0-4851-B80A-E10A14765D7F} = {7AABB749-54F4-4B81-9D34-FC826C47B59D}
+		{AEF1F996-1E33-4BA6-9012-6815118C3AE3} = {04145771-00A7-4C5B-9690-E33B39909867}
+		{EE3B433F-1DB5-453E-980C-576D479CE759} = {04145771-00A7-4C5B-9690-E33B39909867}
 	EndGlobalSection
 EndGlobal

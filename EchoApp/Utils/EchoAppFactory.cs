@@ -1,6 +1,7 @@
 ﻿using System;
 using Application;
 using Ninject;
+using TCPApplication;
 
 namespace Application
 {
@@ -15,10 +16,10 @@ namespace Application
             this.serverApp = serverApp;
         }
 
-        public IEchoApp GetEchoApp(RunMode mode)
+        public IEchoApp GetEchoApp(RunMode runMode)
         {
             IEchoApp app;
-            switch (mode)
+            switch (runMode)
             {
                 case RunMode.Server:
                     app = this.serverApp;
@@ -27,7 +28,7 @@ namespace Application
                     app = this.clientApp;
                     break;
                 default:
-                    throw new ArgumentException("No mode set");
+                    throw new ArgumentException($"No {nameof(runMode)} set");
             }
 
             return app;
