@@ -6,7 +6,7 @@ using Ninject;
 
 namespace Application
 {
-    public class FakeApp : IEchoApp
+    public class TCPClient : IEchoApp
     {
         public void Start(RunSettings settings)
         {
@@ -76,9 +76,9 @@ namespace Application
         {
             Console.WriteLine($"Starting in {runSettings.Mode} mode...");
             this.echoApp = CreateApp();
+            echoApp.Start(runSettings);
             while (true)
             {
-                echoApp.Start(runSettings); ;
                 Console.WriteLine("Enter a message to send and press enter or enter exit to stop the the program");
                 var input = Console.ReadLine();
                 if (input == "exit")
@@ -101,7 +101,7 @@ namespace Application
                     app = new TCPServer();
                     break;
                 case RunMode.Client:
-                    app = new FakeApp(); // client here
+                    app = new TCPClient(); 
                     break;
                 default:
                     throw new ArgumentException("No mode set");
@@ -130,6 +130,7 @@ namespace Application
             var serverLists = new List<string>();
             if (mode == RunMode.Client)
             {
+                // add the rest of the command arguments as server 
                 serverLists.AddRange(arguments.Skip(1));
             }
 
@@ -150,7 +151,6 @@ namespace Application
             catch (ArgumentException ex)
             {
                 Console.WriteLine($"Application failed due to wrong arguments message : {ex.Message}");
-
             }
             catch (Exception ex)
             {
@@ -162,7 +162,5 @@ namespace Application
             }
 
         }
-
-     
     }
 }
