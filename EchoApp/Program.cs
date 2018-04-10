@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Sockets;
 using EchoApp.Utils;
 using TCPApplication;
 using Ninject;
@@ -21,9 +22,14 @@ namespace Application
             {
                 Console.WriteLine($"Application failed due to wrong arguments message : {ex.Message}");
             }
+            catch (SocketException ex)
+            {
+                Console.WriteLine($"Application connection failed due to : {ex.Message}");
+            }
             catch (Exception ex)
             {
-                Console.WriteLine($"Application failed with an unexpected exception message : {ex.Message} stack trace  : {ex.StackTrace} and inner exception : {ex.InnerException?.Message}");
+                Console.WriteLine(
+                    $"Application failed with an unexpected exception message : {ex.Message} stack trace  : {ex.StackTrace} and inner exception : {ex.InnerException?.Message}");
             }
             finally
             {
@@ -58,6 +64,7 @@ namespace Application
         {
             Console.WriteLine($"Starting in {runSettings.Mode} mode...");
             this.echoApp = this.echoAppFactory.GetEchoApp(runSettings.Mode);
+            Console.WriteLine("Attempting to connect...");
             echoApp.Start(runSettings);
             while (true)
             {
@@ -66,14 +73,16 @@ namespace Application
                 if (input == "exit")
                 {
                     echoApp.Stop();
-                    Console.WriteLine("Stopping ...Press any key to exit");
+                    Console.WriteLine("Stopping ... Press any key to exit");
                     break;
                 }
-
-                echoApp.SendMessage(input);
+                var result = echoApp.SendMessage(input);
+                if (!result)
+                {
+                    Console.WriteLine("Could not send message");
+                }
             }
         }
-
         #endregion
     }
 }

@@ -3,7 +3,7 @@
     public interface IEchoApp
     {
         void Start(RunSettings settings);
-        void SendMessage(string message);
+        bool SendMessage(string message);
         void Stop();
     }
 }
