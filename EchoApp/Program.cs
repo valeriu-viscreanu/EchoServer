@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using EchoApp.Utils;
 using TCPApplication;
@@ -13,6 +14,7 @@ namespace Application
         {
             try
             {
+                var ip = IPAddress.Loopback;
                 ContainerUtils.RegisterDependencies(Container);
                 Application = Container.Get<IProgram>();
                 var runSettings = Utils.ParseCommandLineArguments(args);
