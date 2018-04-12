@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -12,7 +13,7 @@ namespace TCPApplication
     {
         private readonly TcpClient tcpClient = new TcpClient();
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        private readonly TCPUtils tcpUtils = new TCPUtils();
+        private readonly TCPManager tcpManager = new TCPManager();
 
 
         public void Start(RunSettings settings)
@@ -24,8 +25,9 @@ namespace TCPApplication
             try
             {
                 tcpClient.Connect(ipEndpoint.Address, ipEndpoint.Port);
+                Console.WriteLine($"Client connected on {tcpClient.Client.LocalEndPoint}");
                 // run this on the thread pool not to block The UI
-                Task.Run(async () => { await tcpUtils.ReceiveDataAsync(tcpClient, message => { Console.WriteLine($"Received {message}"); }); }, cancellationTokenSource.Token);
+                Task.Run(async () => { await this.tcpManager.ReceiveMessageAsync(tcpClient, async message => { Console.WriteLine($"Received {message}"); }); }, cancellationTokenSource.Token);
             }
             catch
             {
@@ -54,6 +56,7 @@ namespace TCPApplication
 
         public void Stop()
         {
+            Console.WriteLine("Stopping client");
             cancellationTokenSource.Cancel();
             tcpClient.Close();
         }
@@ -63,25 +66,46 @@ namespace TCPApplication
 
     public class Server : IEchoApp
     {
-        private readonly TCPUtils tcpUtils = new TCPUtils();
+        private readonly TCPManager tcpManager = new TCPManager();
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private const int portNumber = 55001; //TODO move 
-        private readonly TcpListener tcpListener = new TcpListener(IPAddress.Parse("172.31.15.199"),portNumber);
+        private readonly TcpListener tcpListener = new TcpListener(GetServerIpAddress(), portNumber);
+        private List<TcpClient> tcpClients = new List<TcpClient>();
 
         public void Start(RunSettings settings)
         {
-           
+
             tcpListener.Start();
+            // scheduele this on the thread pool not to block excuting this
             Task.Run(async () =>
             {
                 try
                 {
-                    Console.WriteLine($"Starting ip {tcpListener.LocalEndpoint}"); // TODO add event to remove Console dependency
+                    Console.WriteLine($"Starting on {tcpListener.LocalEndpoint}"); // TODO add event to remove Console dependency
                     // wait for a client connection
                     while (!cancellationTokenSource.Token.IsCancellationRequested)
                     {
                         var client = await tcpListener.AcceptTcpClientAsync();
-                        // TODO add  var message = await tcpUtils.ReceiveDataAsync(client); Change implentation of method
+                        tcpClients.Add(client);
+                        Console.WriteLine($"A client  {client.Client.RemoteEndPoint} is connected");
+                        // listen for messages from this client  using an awaitable(Task) for better scalability
+                        Task.Run(async () =>
+                        {
+                            var disconnectionMessage = $"Client {client.Client.RemoteEndPoint} disconnected";
+                            try
+                            {
+                                await tcpManager.EchoMessageAsync(client, this.tcpClients);
+                                if (!client.Connected)
+                                {
+                                    Console.WriteLine(disconnectionMessage);
+                                }
+                            }
+                            catch
+                            {
+                                Console.WriteLine(disconnectionMessage);
+                                throw;
+                            }
+                        });
                     }
                 }
                 catch
@@ -95,7 +119,7 @@ namespace TCPApplication
 
         }
 
-        private IPAddress GetServerIpAddress()
+        private static IPAddress GetServerIpAddress()
         {
             string hostName = Dns.GetHostName();
             IPHostEntry ipHostInfo = Dns.GetHostEntry(hostName);
@@ -120,16 +144,18 @@ namespace TCPApplication
 
         public bool SendMessage(string message)
         {
-            // TODO check for clients .... 
-            var isSentSuccessfully = false;
-            // no connection means nobody to send the message to
-            if (!tcpListener.Server.Connected)
+            bool isSentSuccessfully;
+            try
             {
-                return isSentSuccessfully;
+                var buffer = Encoding.ASCII.GetBytes(message);
+                tcpClients.ForEach(client => client.GetStream().WriteAsync(buffer, 0, buffer.Length));
+                isSentSuccessfully = true;
             }
-            var buffer = Encoding.ASCII.GetBytes(message);
+            catch
+            {
+                isSentSuccessfully = false;
+            }
 
-            
             return isSentSuccessfully;
         }
 

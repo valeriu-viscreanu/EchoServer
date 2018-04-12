@@ -14,7 +14,6 @@ namespace Application
         {
             try
             {
-                var ip = IPAddress.Loopback;
                 ContainerUtils.RegisterDependencies(Container);
                 Application = Container.Get<IProgram>();
                 var runSettings = Utils.ParseCommandLineArguments(args);

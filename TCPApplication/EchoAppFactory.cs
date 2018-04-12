@@ -1,9 +1,7 @@
 ﻿using System;
-using Application;
 using Ninject;
-using TCPApplication;
 
-namespace Application
+namespace TCPApplication
 {
     public class EchoAppFactory : IEchoAppFactory
     {

@@ -1,7 +1,5 @@
-﻿using Application;
-using TCPApplication;
-
-namespace Application
+﻿
+namespace TCPApplication
 {
     public interface IEchoAppFactory
     {
