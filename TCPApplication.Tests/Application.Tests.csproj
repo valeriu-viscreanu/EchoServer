@@ -35,7 +35,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="TCPApplication.Fakes">
+      <HintPath>FakesAssemblies\TCPApplication.Fakes.dll</HintPath>
+    </Reference>
+    <Reference Include="TcpDrivers.Fakes">
+      <HintPath>FakesAssemblies\TcpDrivers.Fakes.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -54,10 +64,20 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TCPApplication\Application.csproj">
+      <Project>{aef1f996-1e33-4ba6-9012-6815118c3ae3}</Project>
+      <Name>Application</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TcpDrivers\TcpDrivers.csproj">
       <Project>{03FB6C02-FA42-400C-B551-169902F23B7C}</Project>
       <Name>TcpDrivers</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Fakes Include="Fakes\TcpDrivers.fakes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Fakes Include="Fakes\TCPApplication.fakes" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
