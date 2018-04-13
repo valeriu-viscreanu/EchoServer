@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace TcpDrivers
             }
 
             var networkStream = clientSender.GetStream();
-            var buffer = new byte[4096]; 
+            var buffer = new byte[4096];
 
             int bytesReceived;
             while ((bytesReceived = await networkStream.ReadAsync(buffer, 0, buffer.Length)) != 0)
@@ -66,6 +67,18 @@ namespace TcpDrivers
                    await client.GetStream().WriteAsync(buffer, 0, buffer.Length);
                }
            }, clientSender);
+        }
+
+        /// <summary>
+        /// get the client connection state
+        /// </summary>
+        /// <returns></returns>
+        public static TcpState GetState(TcpClient tcpClient)
+        {
+            var ipProperties = IPGlobalProperties.GetIPGlobalProperties()
+                .GetActiveTcpConnections()
+                .SingleOrDefault(x => x.LocalEndPoint.Equals(tcpClient?.Client.LocalEndPoint));
+            return ipProperties?.State ?? TcpState.Unknown;
         }
 
         /// <summary>
@@ -115,7 +128,7 @@ namespace TcpDrivers
         {
             get
             {
-                return tcpClient.Client != null && tcpClient.Connected;
+                return  GetState(tcpClient) == TcpState.Established;
             }
         }
 
@@ -137,7 +150,7 @@ namespace TcpDrivers
         {
             get
             {
-                return tcpClient.Client.LocalEndPoint.ToString();
+                return tcpClient?.Client?.LocalEndPoint.ToString();
             }
         }
 

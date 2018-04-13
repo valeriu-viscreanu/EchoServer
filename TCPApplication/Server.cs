@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -9,6 +11,10 @@ using TcpDrivers;
 
 namespace Logic
 {
+    /// <summary>
+    /// todo extract interface and DI!
+    /// 
+    /// </summary>
     public class Server : IEchoApp
     {
         private readonly TCPManager tcpManager = new TCPManager();
@@ -40,7 +46,7 @@ namespace Logic
                             try
                             {
                                 await tcpManager.EchoMessageAsync(client, tcpClients, MessageHandler);
-                                if (!client.Connected)
+                                if (TCPManager.GetState(client) != TcpState.Established)
                                 {
                                     MessageHandler?.Invoke(disconnectionMessage);
                                 }
@@ -66,19 +72,9 @@ namespace Logic
 
         private static IPAddress GetServerIpAddress()
         {
-            string hostName = Dns.GetHostName();
-            IPHostEntry ipHostInfo = Dns.GetHostEntry(hostName);
-            IPAddress ipAddress = null;
-            foreach (var address in ipHostInfo.AddressList)
-            {
-                if (address.AddressFamily ==
-                    AddressFamily.InterNetwork)
-                {
-                    ipAddress = address;
-                    break;
-                }
-            }
-
+            var hostName = Dns.GetHostName();
+            var ipHostInfo = Dns.GetHostEntry(hostName);
+            var ipAddress = ipHostInfo.AddressList.FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork);
             if (ipAddress == null)
             {
                 throw new Exception("No IPv4 address for server");

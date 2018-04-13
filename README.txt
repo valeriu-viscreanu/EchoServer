@@ -5,7 +5,7 @@ The binaries are located at the \binaries\Development
 
 
 The application can run in server or in client mode
-My design intention was to have a sloution with multiple decoupled and cohesive modules enabling testability
+My design intention was to have a solution with multiple decoupled and cohesive modules enabling testability
 Therefore I have used a DI container namely Ninject
 Through a common interface IEchoApp the program would execute Start Stop and SendMessage methods meaning a client or server is able to send message
 Listening for clients and for server message is done asynchronously on the thread pool for a better scalability  and to enable multiple client

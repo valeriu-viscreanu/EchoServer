@@ -9,7 +9,7 @@ using TcpDrivers.Fakes;
 namespace Logic.Tests
 {
     [TestClass]
-    public class TcpApplicationTests
+    public class ClientTests
     {
         private readonly RunSettings runSettings = new RunSettings
         {

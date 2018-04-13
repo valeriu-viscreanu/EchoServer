@@ -83,9 +83,9 @@ namespace Logic
             MessageHandler?.Invoke($"Client connected with server  {tcpManager.ClientEndPoint}");
             // run this on the thread pool not to block the normal execution
             Task.Run(async () =>
-                    {
-                        await tcpManager.ReceiveMessageAsync(async message => { MessageHandler?.Invoke($"Received {message}"); });
-                    }, cancellationTokenSource.Token);
+            {
+                await tcpManager.ReceiveMessageAsync(async message => { MessageHandler?.Invoke($"Received {message}"); });
+            }, cancellationTokenSource.Token);
         }
 
         public bool SendMessage(string messageToSend)
