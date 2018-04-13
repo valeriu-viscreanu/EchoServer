@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TCPApplication
+namespace Logic
 {
     public class RunSettings
     {

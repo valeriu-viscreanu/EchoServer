@@ -1,5 +1,5 @@
 ﻿
-namespace TCPApplication
+namespace Logic
 {
     public interface IEchoAppFactory
     {

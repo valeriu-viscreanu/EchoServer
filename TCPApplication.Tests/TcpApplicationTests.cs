@@ -1,14 +1,19 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace TCPApplication.Tests
+namespace Logic.Tests
 {
     [TestClass]
-    public class TCPApplicationTests
+    public class TcpApplicationTests
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [TestMethod]
         public void TestMethod1()
         {
         }
+
+        //TODO TEST invalid ip
     }
 }

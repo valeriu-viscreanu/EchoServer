@@ -1,4 +1,6 @@
-﻿namespace TCPApplication
+﻿using System;
+
+namespace Logic
 {
     public interface IEchoApp
     {
@@ -12,8 +14,13 @@
         /// </summary>
         bool SendMessage(string message);
         /// <summary>
-        /// stop everything and dispose
+        /// Stop everything and dispose
         /// </summary>
         void Stop();
+
+        /// <summary>
+        ///  This will handle messages and will be used by the UI
+        /// </summary>
+        Action<string> MessageHandler {set; }
     }
 }

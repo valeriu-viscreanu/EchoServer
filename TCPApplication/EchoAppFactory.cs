@@ -1,7 +1,7 @@
 ﻿using System;
 using Ninject;
 
-namespace TCPApplication
+namespace Logic
 {
     public class EchoAppFactory : IEchoAppFactory
     {

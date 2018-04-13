@@ -1,7 +1,7 @@
-﻿using Application;
+﻿using Logic;
+using Logic.Fakes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TCPApplication;
-using TCPApplication.Fakes;
+using TcpDrivers.Fakes;
 
 namespace EchoApp.Tests
 {
@@ -18,8 +18,9 @@ namespace EchoApp.Tests
         public void AppFactory_GetEchoApp_ReturnsCorrectMode()
         {
            //Arrange
-            var clientApp = new StubIEchoApp();
-            var serverApp = new StubIEchoApp();
+            var clientApp = new StubServer();
+            var tcpmanager = new StubTCPManager();
+            var serverApp = new StubClient(tcpmanager);
 
             var appFacory = new EchoAppFactory(clientApp,serverApp);
 

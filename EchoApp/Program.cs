@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Net;
 using System.Net.Sockets;
 using EchoApp.Utils;
-using TCPApplication;
+using Logic;
 using Ninject;
 
 
@@ -22,6 +21,10 @@ namespace Application
             catch (ArgumentException ex)
             {
                 Console.WriteLine($"Application failed due to wrong arguments message : {ex.Message}");
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Application failed due to wrong format message : {ex.Message}");
             }
             catch (SocketException ex)
             {
@@ -64,8 +67,9 @@ namespace Application
         public void Run(RunSettings runSettings)
         {
             Console.WriteLine($"Starting in {runSettings.Mode} mode...");
-            this.echoApp = this.echoAppFactory.GetEchoApp(runSettings.Mode);
+            echoApp = echoAppFactory.GetEchoApp(runSettings.Mode);
             Console.WriteLine("Attempting to connect...");
+            echoApp.MessageHandler = Console.WriteLine;
             echoApp.Start(runSettings);
             while (true)
             {
@@ -77,10 +81,10 @@ namespace Application
                     Console.WriteLine("Stopping ... Press any key to exit");
                     break;
                 }
-                var result = echoApp.SendMessage(input);
-                if (!result)
+                var messageSentSuccessfully = echoApp.SendMessage(input);
+                if (!messageSentSuccessfully)
                 {
-                    Console.WriteLine("Could not send message");
+                    Console.WriteLine($"Could not send message {input}");
                 }
             }
         }
