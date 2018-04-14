@@ -15,14 +15,18 @@ namespace Logic
     /// todo extract interface and DI!
     /// 
     /// </summary>
-    public class Server : IEchoApp
+    public class Server : IEchoApp, IServer
     {
-        private readonly TCPManager tcpManager = new TCPManager();
+        private readonly ITCPManager tcpManager;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private const int PortNumber = 55001; //TODO move 
         private readonly TcpListener tcpListener = new TcpListener(GetServerIpAddress(), PortNumber);
         private List<TcpClient> tcpClients = new List<TcpClient>();
 
+        public Server(ITCPManager tcpManager)
+        {
+            this.tcpManager = tcpManager;
+        }
         public void Start(RunSettings settings)
         {
 
