@@ -10,77 +10,53 @@ namespace Logic
     public class Client : IEchoApp
     {
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        private ITCPManager tcpManager; // TODO solve this with DI
-        private IEnumerable<IPEndPoint> endPoints = new List<IPEndPoint>();
+        private readonly ITCPManager tcpManager; 
+        private readonly IEnumerable<IPEndPoint> endPoints = new List<IPEndPoint>();
+        private readonly List<string> serverList = new List<string>();
 
         public Client(ITCPManager tcpManager)
         {
             this.tcpManager = tcpManager;
         }
 
-        /// <summary>
-        /// try to connect to one of the servers
-        /// if all have failed returns false
-        /// </summary>
-        /// <returns></returns>
-        public bool Connect()
-        {
-            foreach (var ipEndpoint in endPoints)
-            {
-                try
-                {
-                    tcpManager.Connect(ipEndpoint);
-                    // if no exception we assume to be connected successfully
-                    return true;
-                }
-                catch
-                {
-                    continue;
-                }
-            }
-
-            return false;
-        }
+     
 
         public void Start(RunSettings settings)
         {
-            endPoints = tcpManager.CreateIpEndPoints(settings.ServerList);
-            var connected = Connect();
-            try
+            serverList.AddRange(settings.ServerList);
+            var isConnected = Connect();
+            if (isConnected)
             {
-                if (connected)
-                {
-                    StartListening();
-                }
-                else
-                {
-                    // force a reconection
-                    throw  new Exception();
-                }
+                StartListening();
             }
-            catch
+            else
             {
-                var reconnected = Connect();
-                if (reconnected)
-                {
-                    StartListening();
-                }
-                else
-                {
-                    // we reached this point probably means something went wrong or we are not reading anymore (half-open connection)
-                    Stop();
-                    throw;
-                }
+                Stop();
             }
-
         }
+
+        private bool Connect()
+        {
+            var isConnected = false;
+            foreach (var serverEndpointString in serverList)
+            {
+                isConnected = tcpManager.Connect(serverEndpointString);
+                if (isConnected)
+                {
+                    break;
+                }
+                MessageHandler?.Invoke($"Failed to connect to server {serverEndpointString}");
+            }
+            return isConnected;
+        }
+
 
         /// <summary>
         /// Start listening for Tcp messages from the server
         /// </summary>
         public void StartListening()
         {
-            MessageHandler?.Invoke($"Client connected with server  {tcpManager.ClientEndPoint}");
+            MessageHandler?.Invoke($"Client connected with server  {tcpManager.ServertEndPointName}");
             // run this on the thread pool not to block the normal execution
             Task.Run(async () =>
             {
@@ -90,18 +66,24 @@ namespace Logic
 
         public bool SendMessage(string messageToSend)
         {
-            var isSentSuccessfully = false;
             if (!tcpManager.IsClientConnected)
             {
-                return isSentSuccessfully;
+                bool isReconnected = Connect();
+                if (!isReconnected)
+                {
+                    return false;
+                }
+                else
+                {
+                    MessageHandler?.Invoke($"Client reconnected with server  {tcpManager.ServertEndPointName}");
+                }
             }
-            isSentSuccessfully = tcpManager.SendMessage(messageToSend);
-            return isSentSuccessfully;
+            return tcpManager.SendMessage(messageToSend);
         }
 
         public void Stop()
         {
-            MessageHandler?.Invoke($"Stopping client {tcpManager.ClientEndPoint}");
+            MessageHandler?.Invoke($"Stopping client {tcpManager.ClientEndPointName}");
             cancellationTokenSource.Cancel();
             tcpManager.Close();
         }

@@ -17,10 +17,10 @@ namespace EchoApp.Tests
         [TestMethod]
         public void AppFactory_GetEchoApp_ReturnsCorrectMode()
         {
-           //Arrange
-            var clientApp = new StubServer();
+            //Arrange
             var tcpmanager = new StubTCPManager();
-            var serverApp = new StubClient(tcpmanager);
+            var clientApp = new StubClient(tcpmanager);
+            var serverApp = new StubServer(tcpmanager);
 
             var appFacory = new EchoAppFactory(clientApp,serverApp);
 

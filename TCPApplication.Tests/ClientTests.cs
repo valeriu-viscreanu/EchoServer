@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
-using Logic.Fakes;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TcpDrivers.Fakes;
 
@@ -29,9 +25,12 @@ namespace Logic.Tests
             var calledConnect = false;
             var tcpManager = new StubITCPManager()
             {
-                ConnectIPEndPoint = point => { calledConnect = true; },
-                CreateIpEndPointsIEnumerableOfString = ipSring => new List<IPEndPoint> { new IPEndPoint(IPAddress.Parse("192.168.56.13"), 134) }
-                
+                ConnectString = endpoints =>
+                {
+                    calledConnect = true;
+                    return true;
+                },
+
             };
 
             var client = new Client(tcpManager);
@@ -47,20 +46,17 @@ namespace Logic.Tests
         {
             //arrange
             var tries = 0;
-            var tcpManager = new StubITCPManager()
+            var tcpManager = new StubITCPManager
             {
-                ConnectIPEndPoint = endPoint =>
+                ConnectString = endPointString =>
                 {
                     if (tries == 0)
                     {
                         tries++;
-                        throw new SocketException();
+                        return false;
                     }
-                },
-                CreateIpEndPointsIEnumerableOfString = ipSring => new List<IPEndPoint>
-                {
-                    new IPEndPoint(IPAddress.Parse("192.168.56.13"), 134),
-                    new IPEndPoint(IPAddress.Parse("192.168.56.12"), 134),
+
+                    return true;
                 }
 
             };
@@ -78,36 +74,19 @@ namespace Logic.Tests
         {
             //arrange
             var calledStopTrue = false;
-            var threwExceptionUpwards = false;
             var tcpManager = new StubITCPManager()
             {
-                ConnectIPEndPoint = endPoint =>
-                {
-                        throw new SocketException();
-                },
-                Close = () => { calledStopTrue = true; },
-                CreateIpEndPointsIEnumerableOfString = ipSring => new List<IPEndPoint>
-                {
-                    new IPEndPoint(IPAddress.Parse("192.168.56.13"), 134),
-                    new IPEndPoint(IPAddress.Parse("192.168.56.12"), 134),
-                }
+                ConnectString = endPoint => false,
+                Close = () => { calledStopTrue = true; }
 
             };
             var client = new Client(tcpManager);
 
             //act
-            try
-            {
+            client.Start(runSettings);
 
-                client.Start(this.runSettings);
-            }
-            catch (Exception)
-            {
-                threwExceptionUpwards = true;
-            }
             //assert
             Assert.IsTrue(calledStopTrue);
-            Assert.IsTrue(threwExceptionUpwards);
         }
 
         [TestMethod]
@@ -117,8 +96,7 @@ namespace Logic.Tests
             var calledCloseManager = false;
             var tcpManager = new StubITCPManager()
             {
-                Close = () => calledCloseManager = true,
-                CreateIpEndPointsIEnumerableOfString = ipSring => new List<IPEndPoint>() { new IPEndPoint(IPAddress.Parse("192.168.56.13"), 134) }
+                Close = () => calledCloseManager = true
 
             };
 
@@ -129,7 +107,32 @@ namespace Logic.Tests
             //assert
             Assert.IsTrue(calledCloseManager);
         }
+        [TestMethod]
+        public void Client_SendMessage_CallsConnectIfDisconnected()
+        {
+            //arrange
+            bool calledConnect;
+            var tcpManager = new StubITCPManager()
+            {
+                IsClientConnectedGet = () => false,
+                SendMessageString = message => true,
+                ConnectString = message =>
+                {
+                    calledConnect = true;
+                    return true;
+                }
+            };
 
-        //TODO TEST invalid ip in 
+            var client = new Client(tcpManager);
+            client.Start(this.runSettings);
+
+            //act
+            calledConnect = false;
+            var sentMessage = client.SendMessage("Test");
+
+            //assert
+            Assert.IsTrue(calledConnect);
+            Assert.IsTrue(sentMessage);
+        }
     }
 }

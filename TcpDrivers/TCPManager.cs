@@ -13,7 +13,8 @@ namespace TcpDrivers
     public class TCPManager : ITCPManager
     {
 
-        private readonly TcpClient tcpClient = new TcpClient();
+        private readonly TcpClient localTcpClient = new TcpClient();
+        private const int ConnectionTimeout = 500;
         /// <summary>
         /// process the messages from a TCP client in an async mode
         /// it needs to know the client sender if used with the server
@@ -26,7 +27,7 @@ namespace TcpDrivers
         {
             if (clientSender == null)
             {
-                 clientSender = this.tcpClient;
+                 clientSender = this.localTcpClient;
             }
 
             var networkStream = clientSender.GetStream();
@@ -40,6 +41,26 @@ namespace TcpDrivers
                 await messageHandler(data);
             }
 
+        }
+
+        /// <summary>
+        /// try to connect to one of the servers
+        /// if all have failed returns false
+        /// </summary>
+        /// <returns>connected successfully</returns>
+        public bool Connect(string endPointString)
+        {
+            var ipEndpoint = GetIpEndPoint(endPointString);
+            try
+            {
+                Connect(ipEndpoint);
+            }
+            catch
+            {
+                return false;
+            }
+            // if no exception we assume to be connected successfully
+            return true;
         }
 
         /// <summary>
@@ -73,7 +94,7 @@ namespace TcpDrivers
         /// get the client connection state
         /// </summary>
         /// <returns></returns>
-        public static TcpState GetState(TcpClient tcpClient)
+        public static TcpState GetTcpState(TcpClient tcpClient)
         {
             var ipProperties = IPGlobalProperties.GetIPGlobalProperties()
                 .GetActiveTcpConnections()
@@ -86,7 +107,7 @@ namespace TcpDrivers
         /// </summary>
         /// <param name="endPoint"></param>
         /// <returns></returns>
-        private static IPEndPoint CreateIpEndPoint(string endPoint)
+        private static IPEndPoint GetIpEndPoint(string endPoint)
         {
             const int minPortNumber = 0;
             const int maxPortNumber = 65535;
@@ -107,11 +128,11 @@ namespace TcpDrivers
         }
 
 
-        public  IEnumerable<IPEndPoint> CreateIpEndPoints(IEnumerable<string> endPoints)
+        public  IEnumerable<IPEndPoint> GetIpEndPoints(IEnumerable<string> endPoints)
         { 
             foreach (var endPoint in endPoints)
             {
-                yield return CreateIpEndPoint(endPoint);
+                yield return GetIpEndPoint(endPoint);
             }
         }
         
@@ -120,7 +141,7 @@ namespace TcpDrivers
         {
             if (!IsClientConnected)
             {
-                tcpClient.Connect(endpoint);
+                localTcpClient.Connect(endpoint);
             }
         }
 
@@ -128,7 +149,7 @@ namespace TcpDrivers
         {
             get
             {
-                return  GetState(tcpClient) == TcpState.Established;
+                return  GetTcpState(this.localTcpClient) == TcpState.Established;
             }
         }
 
@@ -137,7 +158,7 @@ namespace TcpDrivers
             if (IsClientConnected)
             {
                 var buffer = Encoding.ASCII.GetBytes(messageToSend);
-                tcpClient.GetStream().Write(buffer, 0, buffer.Length);
+                this.localTcpClient.GetStream().Write(buffer, 0, buffer.Length);
                 return true;
             }
             else
@@ -146,17 +167,24 @@ namespace TcpDrivers
             }
         }
 
-        public string ClientEndPoint
+        public string ClientEndPointName
         {
             get
             {
-                return tcpClient?.Client?.LocalEndPoint.ToString();
+                return this.localTcpClient?.Client?.LocalEndPoint?.ToString();
+            }
+        }
+        public string ServertEndPointName
+        {
+            get
+            {
+                return this.localTcpClient?.Client?.RemoteEndPoint.ToString();
             }
         }
 
         public void Close()
         {
-            tcpClient.Close();
+            this.localTcpClient.Close();
         }
     }
 }

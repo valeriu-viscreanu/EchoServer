@@ -78,7 +78,7 @@ namespace Application
                 if (input == "exit")
                 {
                     echoApp.Stop();
-                    Console.WriteLine("Stopping ... Press any key to exit");
+                    Console.WriteLine("Press any key to exit");
                     break;
                 }
                 var messageSentSuccessfully = echoApp.SendMessage(input);

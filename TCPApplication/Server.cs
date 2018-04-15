@@ -11,15 +11,11 @@ using TcpDrivers;
 
 namespace Logic
 {
-    /// <summary>
-    /// todo extract interface and DI!
-    /// 
-    /// </summary>
     public class Server : IEchoApp, IServer
     {
         private readonly ITCPManager tcpManager;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        private const int PortNumber = 55001; //TODO move 
+        private const int PortNumber = 55001;
         private readonly TcpListener tcpListener = new TcpListener(GetServerIpAddress(), PortNumber);
         private List<TcpClient> tcpClients = new List<TcpClient>();
 
@@ -30,37 +26,19 @@ namespace Logic
         public void Start(RunSettings settings)
         {
 
-            this.tcpListener.Start();
+            tcpListener.Start();
+
             // scheduele this on the thread pool not to block excuting this
             Task.Run(async () =>
             {
                 try
                 {
-                    MessageHandler?.Invoke($"Starting on {this.tcpListener.LocalEndpoint}"); 
+                    MessageHandler?.Invoke($"Starting on {tcpListener.LocalEndpoint}");
                     // wait for a client connection
-                    while (!this.cancellationTokenSource.Token.IsCancellationRequested)
+                    while (!cancellationTokenSource.Token.IsCancellationRequested)
                     {
                         var client = await tcpListener.AcceptTcpClientAsync();
-                        tcpClients.Add(client);
-                        MessageHandler?.Invoke($"A client  {client.Client.RemoteEndPoint} is connected");
-                        // listen for messages from this client  using an awaitable(Task) for better scalability
-                        Task.Run(async () =>
-                        {
-                            var disconnectionMessage = $"Client {client.Client.RemoteEndPoint} disconnected";
-                            try
-                            {
-                                await tcpManager.EchoMessageAsync(client, tcpClients, MessageHandler);
-                                if (TCPManager.GetState(client) != TcpState.Established)
-                                {
-                                    MessageHandler?.Invoke(disconnectionMessage);
-                                }
-                            }
-                            catch
-                            {
-                                MessageHandler?.Invoke(disconnectionMessage);
-                                throw;
-                            }
-                        });
+                        StartListeningFrom(client);
                     }
                 }
                 catch
@@ -70,8 +48,34 @@ namespace Logic
                     throw;
                 }
             }, cancellationTokenSource.Token);
+        }
 
+        private void StartListeningFrom(TcpClient client)
+        {
+            tcpClients.Add(client);
+            MessageHandler?.Invoke($"A client  {client.Client.RemoteEndPoint} is connected");
+            // listen for messages from this client  using an awaitable(Task) for better scalability
+            Task.Run(async () =>
+            {
+                var disconnectionMessage = $"Client {client.Client.RemoteEndPoint} disconnected";
+                try
+                {
+                    await tcpManager.EchoMessageAsync(client, tcpClients, MessageHandler);
+                    HandleDisconnection(client, disconnectionMessage);
+                }
+                catch
+                {
+                    HandleDisconnection(client, disconnectionMessage);
+                    throw;
 
+                }
+            });
+        }
+
+        private void HandleDisconnection(TcpClient client, string disconnectionMessage)
+        {
+            MessageHandler?.Invoke(disconnectionMessage);
+            this.tcpClients.Remove(client);
         }
 
         private static IPAddress GetServerIpAddress()
@@ -93,7 +97,10 @@ namespace Logic
             try
             {
                 var buffer = Encoding.ASCII.GetBytes(message);
-                tcpClients.ForEach(client => client.GetStream().WriteAsync(buffer, 0, buffer.Length));
+                foreach (var client in tcpClients)
+                {
+                    client.GetStream().WriteAsync(buffer, 0, buffer.Length);
+                }
                 isSentSuccessfully = true;
             }
             catch

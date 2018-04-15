@@ -21,7 +21,7 @@ namespace Application
                 throw new ArgumentException("You must specify mode of running please check the readme");
             }
             RunMode mode;
-            var parsedOk = Enum.TryParse(arguments[0], true, out mode); //TODO  handle parse failure
+            var parsedOk = Enum.TryParse(arguments[0], true, out mode);
             if(!parsedOk) throw new ArgumentException("You must specify mode of running please check the readme");
             var serverLists = new List<string>();
             if (mode == RunMode.Client)
