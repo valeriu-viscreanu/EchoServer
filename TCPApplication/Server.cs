@@ -13,15 +13,15 @@ namespace Logic
 {
     public class Server : IEchoApp, IServer
     {
-        private readonly ITCPManager tcpManager;
+        private readonly ITcpServerManager tcpServerManager;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private const int PortNumber = 55001;
         private readonly TcpListener tcpListener = new TcpListener(GetServerIpAddress(), PortNumber);
-        private List<TcpClient> tcpClients = new List<TcpClient>();
+        private readonly List<TcpClient> tcpClients = new List<TcpClient>();
 
-        public Server(ITCPManager tcpManager)
+        public Server(ITcpServerManager tcpServerManager)
         {
-            this.tcpManager = tcpManager;
+            this.tcpServerManager = tcpServerManager;
         }
         public void Start(RunSettings settings)
         {
@@ -60,7 +60,7 @@ namespace Logic
                 var disconnectionMessage = $"Client {client.Client.RemoteEndPoint} disconnected";
                 try
                 {
-                    await tcpManager.EchoMessageAsync(client, tcpClients, MessageHandler);
+                    await tcpServerManager.EchoMessageAsync(client, tcpClients, MessageHandler);
                     HandleDisconnection(client, disconnectionMessage);
                 }
                 catch
@@ -96,11 +96,7 @@ namespace Logic
             bool isSentSuccessfully;
             try
             {
-                var buffer = Encoding.ASCII.GetBytes(message);
-                foreach (var client in tcpClients)
-                {
-                    client.GetStream().WriteAsync(buffer, 0, buffer.Length);
-                }
+                tcpServerManager.SendMessage(tcpClients, MessageHandler, message);
                 isSentSuccessfully = true;
             }
             catch

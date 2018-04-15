@@ -18,9 +18,10 @@ namespace EchoApp.Tests
         public void AppFactory_GetEchoApp_ReturnsCorrectMode()
         {
             //Arrange
-            var tcpmanager = new StubTCPManager();
-            var clientApp = new StubClient(tcpmanager);
-            var serverApp = new StubServer(tcpmanager);
+            var clientManager = new StubITcpClientManager();
+            var serverManager = new StubITcpServerManager();
+            var clientApp = new StubClient(clientManager);
+            var serverApp = new StubServer(serverManager);
 
             var appFacory = new EchoAppFactory(clientApp,serverApp);
 

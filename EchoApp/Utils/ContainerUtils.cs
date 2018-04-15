@@ -16,7 +16,8 @@ namespace EchoApp.Utils
             container.Bind<IEchoApp>().To<Server>().Named("serverApp");;
             container.Bind<IEchoApp>().To<Client>().Named("clientApp");
             container.Bind<IEchoAppFactory>().To<EchoAppFactory>();
-            container.Bind<ITCPManager>().To<TCPManager>();
+            container.Bind<ITcpClientManager>().To<TcpClientManager>();
+            container.Bind<ITcpServerManager>().To<TcpServerManager>();
         }
 
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using TcpDrivers;
@@ -10,13 +9,12 @@ namespace Logic
     public class Client : IEchoApp
     {
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        private readonly ITCPManager tcpManager; 
-        private readonly IEnumerable<IPEndPoint> endPoints = new List<IPEndPoint>();
+        private readonly ITcpClientManager tcpClientManager;
         private readonly List<string> serverList = new List<string>();
 
-        public Client(ITCPManager tcpManager)
+        public Client(ITcpClientManager tcpClientManager)
         {
-            this.tcpManager = tcpManager;
+            this.tcpClientManager = tcpClientManager;
         }
 
      
@@ -40,7 +38,7 @@ namespace Logic
             var isConnected = false;
             foreach (var serverEndpointString in serverList)
             {
-                isConnected = tcpManager.Connect(serverEndpointString);
+                isConnected = this.tcpClientManager.Connect(serverEndpointString);
                 if (isConnected)
                 {
                     break;
@@ -56,17 +54,17 @@ namespace Logic
         /// </summary>
         public void StartListening()
         {
-            MessageHandler?.Invoke($"Client connected with server  {tcpManager.ServertEndPointName}");
+            MessageHandler?.Invoke($"Client connected with server  {this.tcpClientManager.ServertEndPointName}");
             // run this on the thread pool not to block the normal execution
             Task.Run(async () =>
             {
-                await tcpManager.ReceiveMessageAsync(async message => { MessageHandler?.Invoke($"Received {message}"); });
+                await this.tcpClientManager.ReceiveMessageAsync(async message => { MessageHandler?.Invoke($"Received {message}"); });
             }, cancellationTokenSource.Token);
         }
 
         public bool SendMessage(string messageToSend)
         {
-            if (!tcpManager.IsClientConnected)
+            if (!tcpClientManager.IsClientConnected)
             {
                 bool isReconnected = Connect();
                 if (!isReconnected)
@@ -75,17 +73,17 @@ namespace Logic
                 }
                 else
                 {
-                    MessageHandler?.Invoke($"Client reconnected with server  {tcpManager.ServertEndPointName}");
+                    MessageHandler?.Invoke($"Client reconnected with server  {this.tcpClientManager.ServertEndPointName}");
                 }
             }
-            return tcpManager.SendMessage(messageToSend);
+            return tcpClientManager.SendMessage(messageToSend);
         }
 
         public void Stop()
         {
-            MessageHandler?.Invoke($"Stopping client {tcpManager.ClientEndPointName}");
+            MessageHandler?.Invoke($"Stopping client {this.tcpClientManager.ClientEndPointName}");
             cancellationTokenSource.Cancel();
-            tcpManager.Close();
+            this.tcpClientManager.Close();
         }
 
         public Action<string> MessageHandler { private get; set; }

@@ -44,9 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EchoAppFactory.cs" />
+    <Compile Include="AppFactory\EchoAppFactory.cs" />
     <Compile Include="IEchoApp.cs" />
-    <Compile Include="IEchoAppFactory.cs" />
+    <Compile Include="AppFactory\IEchoAppFactory.cs" />
     <Compile Include="IServer.cs" />
     <Compile Include="RunSettings.cs" />
     <Compile Include="Server.cs" />

@@ -23,14 +23,13 @@ namespace Logic.Tests
         {
             //arrange
             var calledConnect = false;
-            var tcpManager = new StubITCPManager()
+            var tcpManager = new StubITcpClientManager()
             {
                 ConnectString = endpoints =>
                 {
                     calledConnect = true;
                     return true;
-                },
-
+                }
             };
 
             var client = new Client(tcpManager);
@@ -46,7 +45,7 @@ namespace Logic.Tests
         {
             //arrange
             var tries = 0;
-            var tcpManager = new StubITCPManager
+            var tcpManager = new StubITcpClientManager
             {
                 ConnectString = endPointString =>
                 {
@@ -74,7 +73,7 @@ namespace Logic.Tests
         {
             //arrange
             var calledStopTrue = false;
-            var tcpManager = new StubITCPManager()
+            var tcpManager = new StubITcpClientManager()
             {
                 ConnectString = endPoint => false,
                 Close = () => { calledStopTrue = true; }
@@ -94,7 +93,7 @@ namespace Logic.Tests
         {
             //arrange
             var calledCloseManager = false;
-            var tcpManager = new StubITCPManager()
+            var tcpManager = new StubITcpClientManager()
             {
                 Close = () => calledCloseManager = true
 
@@ -112,7 +111,7 @@ namespace Logic.Tests
         {
             //arrange
             bool calledConnect;
-            var tcpManager = new StubITCPManager()
+            var tcpManager = new StubITcpClientManager()
             {
                 IsClientConnectedGet = () => false,
                 SendMessageString = message => true,
