@@ -24,6 +24,8 @@ namespace TCPApplication.Tests
 
             //act
            var result = server.SendMessage("test message");
+
+     
             //assert
             // no excetion
             Assert.IsFalse(result);

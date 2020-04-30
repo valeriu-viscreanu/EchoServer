@@ -25,7 +25,7 @@ namespace Logic
             var isConnected = Connect();
             if (isConnected)
             {
-                StartListening();
+                this.StartReceiving();
             }
             else
             {
@@ -38,7 +38,7 @@ namespace Logic
             var isConnected = false;
             foreach (var serverEndpointString in serverList)
             {
-                isConnected = this.tcpClientManager.Connect(serverEndpointString);
+                isConnected = tcpClientManager.Connect(serverEndpointString);
                 if (isConnected)
                 {
                     break;
@@ -52,13 +52,13 @@ namespace Logic
         /// <summary>
         /// Start listening for Tcp messages from the server
         /// </summary>
-        public void StartListening()
+        public void StartReceiving()
         {
             MessageHandler?.Invoke($"Client connected with server  {this.tcpClientManager.ServertEndPointName}");
             // run this on the thread pool not to block the normal execution
             Task.Run(async () =>
             {
-                await this.tcpClientManager.ReceiveMessageAsync(async message => { MessageHandler?.Invoke($"Received {message}"); });
+                await tcpClientManager.ReceiveMessageAsync(async message => { MessageHandler?.Invoke($"Received {message}"); });
             }, cancellationTokenSource.Token);
         }
 
